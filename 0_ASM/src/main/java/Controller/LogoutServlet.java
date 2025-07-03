@@ -32,9 +32,4 @@ public class LogoutServlet extends HttpServlet {
             throws ServletException, IOException {
         processRequest(request, response);
     }
-
-    @Override
-    public String getServletInfo() {
-        return "Logout Servlet";
-    }
 } 

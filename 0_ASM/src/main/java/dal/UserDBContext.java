@@ -43,4 +43,17 @@ public class UserDBContext extends DBContext {
             em.close();
         }
     }
+
+    public User getByEmail(String email) {
+        EntityManager em = createEntityManager();
+        try {
+            TypedQuery<User> query = em.createQuery("SELECT u FROM User u WHERE u.email = :email", User.class);
+            query.setParameter("email", email);
+            return query.getSingleResult();
+        } catch (NoResultException e) {
+            return null; // Không tìm thấy user nào
+        } finally {
+            em.close();
+        }
+    }
 } 

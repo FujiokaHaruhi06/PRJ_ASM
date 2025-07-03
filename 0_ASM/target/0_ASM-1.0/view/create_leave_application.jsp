@@ -37,7 +37,7 @@
                  <h1>${not empty pageTitle ? pageTitle : "Chào mừng"}</h1>
                  <c:if test="${not empty sessionScope.account}">
                     <div class="user-info">
-                        <span>Chào, <strong>${sessionScope.account.lastname}</strong>!</span>
+                        <span>Chào, <strong>${sessionScope.account.user.lastname}</strong>!</span>
                     </div>
                  </c:if>
             </header>
@@ -46,7 +46,7 @@
                     <h2>Tạo đơn xin nghỉ phép mới</h2>
 
                     <div class="user-details-box">
-                        <p><strong>Người tạo đơn:</strong> ${sessionScope.account.firstname} ${sessionScope.account.lastname}</p>
+                        <p><strong>Người tạo đơn:</strong> ${sessionScope.account.user.firstname} ${sessionScope.account.user.lastname}</p>
                         <p><strong>Chức vụ:</strong>
                             <c:forEach items="${sessionScope.roles}" var="role" varStatus="loop">
                                 ${role.rname}${!loop.last ? ', ' : ''}
@@ -59,6 +59,9 @@
                     </c:if>
                     <c:if test="${not empty requestScope.errorMessage}">
                         <p class="error-message">${requestScope.errorMessage}</p>
+                    </c:if>
+                    <c:if test="${not empty errors.general}">
+                        <p class="error-message" style="color: red; font-weight: bold;">${errors.general}</p>
                     </c:if>
 
                     <form id="leave-form" action="create_leave_application" method="post" novalidate>

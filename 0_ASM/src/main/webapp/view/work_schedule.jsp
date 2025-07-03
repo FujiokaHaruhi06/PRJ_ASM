@@ -38,39 +38,38 @@
                  <h1>${not empty pageTitle ? pageTitle : "Chào mừng"}</h1>
                  <c:if test="${not empty sessionScope.account}">
                     <div class="user-info">
-                        <span>Chào, <strong>${sessionScope.account.lastname}</strong>!</span>
+                        <span>Chào, <strong>${sessionScope.account.user.lastname}</strong>!</span>
                     </div>
                  </c:if>
             </header>
             <main>
-                <h2>Lịch làm việc của nhóm ngày <fmt:formatDate value="${requestScope.checkDate}" pattern="dd/MM/yyyy" /></h2>
-    
-                <c:if test="${empty requestScope.workStatusMap}">
+                <h2>Lịch làm việc của nhóm trong tuần</h2>
+                <c:if test="${empty weekDates || empty workStatusWeekMap}">
                     <p>Không có dữ liệu lịch làm việc để hiển thị.</p>
                 </c:if>
-                
-                <c:if test="${not empty requestScope.workStatusMap}">
+                <c:if test="${not empty weekDates && not empty workStatusWeekMap}">
                     <table>
                         <thead>
                             <tr>
                                 <th>Nhân viên</th>
-                                <th>Trạng thái</th>
+                                <c:forEach items="${weekDateLabels}" var="label">
+                                    <th>${label}</th>
+                                </c:forEach>
                             </tr>
                         </thead>
                         <tbody>
-                            <c:forEach items="${requestScope.workStatusMap}" var="entry">
-                                <c:set var="user" value="${entry.key}" />
-                                <c:set var="isOnLeave" value="${entry.value}" />
+                            <c:forEach items="${workStatusWeekMap}" var="entry">
                                 <tr>
                                     <td>
-                                        ${user.firstname} ${user.lastname}
-                                        <c:if test="${user.uid == sessionScope.account.uid}">
-                                            <strong>(Bạn)</strong>
-                                        </c:if>
+                                        ${entry.key.user.firstname} ${entry.key.user.lastname}
+                                        <c:if test="${entry.key.aid == sessionScope.account.aid}"><strong>(Bạn)</strong></c:if>
                                     </td>
-                                    <td style="background-color: ${isOnLeave ? '#e74c3c' : '#2ecc71'}; color: white; font-weight: bold;">
-                                        ${isOnLeave ? 'Đang nghỉ phép' : 'Đang làm việc'}
-                                    </td>
+                                    <c:forEach items="${weekDates}" var="date">
+                                        <c:set var="isOnLeave" value="${entry.value[date]}" />
+                                        <td style="background-color: ${isOnLeave ? '#e74c3c' : '#2ecc71'}; color: white; font-weight: bold;">
+                                            ${isOnLeave ? 'Nghỉ phép' : 'Làm việc'}
+                                        </td>
+                                    </c:forEach>
                                 </tr>
                             </c:forEach>
                         </tbody>

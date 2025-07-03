@@ -7,7 +7,7 @@
         <properties>
             <!-- Database connection settings -->
             <property name="jakarta.persistence.jdbc.driver" value="com.microsoft.sqlserver.jdbc.SQLServerDriver" />
-            <property name="jakarta.persistence.jdbc.url" value="jdbc:sqlserver://localhost:1433;databaseName=ASM;encrypt=true;trustServerCertificate=true;" />
+            <property name="jakarta.persistence.jdbc.url" value="jdbc:sqlserver://localhost:1433;databaseName=ASM;encrypt=true;trustServerCertificate=true;useUnicode=true;characterEncoding=UTF-8;" />
             <property name="jakarta.persistence.jdbc.user" value="long" />
             <property name="jakarta.persistence.jdbc.password" value="cecilia" />
 

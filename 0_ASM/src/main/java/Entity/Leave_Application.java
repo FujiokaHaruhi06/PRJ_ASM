@@ -9,6 +9,8 @@ import java.util.Date;
 import jakarta.persistence.Basic;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.Lob;
@@ -27,6 +29,7 @@ public class Leave_Application implements Serializable {
 
     private static final long serialVersionUID = 1L;
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Basic(optional = false)
     @Column(name = "lid")
     private Integer lid;
@@ -43,7 +46,6 @@ public class Leave_Application implements Serializable {
     @Temporal(TemporalType.TIMESTAMP)
     private Date createTime;
     @Basic(optional = false)
-    @Lob
     @Column(name = "reason")
     private String reason;
     @Column(name = "approval_time")

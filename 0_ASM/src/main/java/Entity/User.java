@@ -43,9 +43,6 @@ public class User implements Serializable {
     private String lastname;
     @Column(name = "phone", unique = true)
     private String phone;
-    @JoinColumn(name = "mgrid", referencedColumnName = "uid")
-    @ManyToOne
-    private User manager;
     @OneToMany(mappedBy = "user")
     private List<Account> accounts;
 
@@ -101,14 +98,6 @@ public class User implements Serializable {
 
     public void setPhone(String phone) {
         this.phone = phone;
-    }
-
-    public User getManager() {
-        return manager;
-    }
-
-    public void setManager(User manager) {
-        this.manager = manager;
     }
 
     public List<Account> getAccounts() {

@@ -16,6 +16,11 @@ import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.util.ArrayList;
+import java.util.List;
+import java.time.format.DateTimeFormatter;
 
 @WebServlet(name = "WorkScheduleServlet", urlPatterns = {"/work_schedule"})
 public class WorkScheduleServlet extends HttpServlet {
@@ -36,23 +41,43 @@ public class WorkScheduleServlet extends HttpServlet {
             throws ServletException, IOException {
         HttpSession session = request.getSession(false);
         Account account = (Account) session.getAttribute("account");
-        
-        // Dùng Map để lưu Account và trạng thái làm việc (boolean: true = on leave)
-        // LinkedHashMap giữ nguyên thứ tự chèn
-        Map<Account, Boolean> workStatusMap = new LinkedHashMap<>();
-        Date today = new Date();
 
-        // 1. Luôn thêm chính account hiện tại vào danh sách
-        workStatusMap.put(account, leaveDBContext.isAccountOnLeaveOnDate(account.getAid(), today));
-        
-        // 2. Lấy danh sách tất cả account cấp dưới và kiểm tra trạng thái của họ
-        Set<Account> subordinates = accountDBContext.getSubordinates(account);
-        for (Account subordinate : subordinates) {
-            workStatusMap.put(subordinate, leaveDBContext.isAccountOnLeaveOnDate(subordinate.getAid(), today));
+        // Ngày hôm nay là ngày đầu tiên, các ngày tiếp theo là hôm nay+1, +2, ...
+        LocalDate today = LocalDate.now();
+        List<LocalDate> weekDates = new ArrayList<>();
+        for (int i = 0; i < 7; i++) {
+            weekDates.add(today.plusDays(i));
         }
-        
-        request.setAttribute("workStatusMap", workStatusMap);
-        request.setAttribute("checkDate", today);
+
+        // Lấy danh sách account: bản thân + cấp dưới
+        List<Account> accounts = new ArrayList<>();
+        accounts.add(account);
+        Set<Account> subordinates = accountDBContext.getSubordinates(account);
+        accounts.addAll(subordinates);
+
+        // Map<Account, Map<LocalDate, Boolean>>
+        Map<Account, Map<LocalDate, Boolean>> workStatusWeekMap = new LinkedHashMap<>();
+        for (Account acc : accounts) {
+            Map<LocalDate, Boolean> statusPerDay = new LinkedHashMap<>();
+            for (LocalDate date : weekDates) {
+                Date utilDate = Date.from(date.atStartOfDay(ZoneId.systemDefault()).toInstant());
+                boolean isOnLeave = leaveDBContext.isAccountOnLeaveOnDate(acc.getAid(), utilDate);
+                statusPerDay.put(date, isOnLeave);
+            }
+            workStatusWeekMap.put(acc, statusPerDay);
+        }
+
+        DateTimeFormatter labelFmt = DateTimeFormatter.ofPattern("dd/MM");
+        List<String> weekDateLabels = new ArrayList<>();
+        for (LocalDate d : weekDates) {
+            String label = d.format(labelFmt);
+            if (d.equals(today)) label += " (hôm nay)";
+            weekDateLabels.add(label);
+        }
+
+        request.setAttribute("weekDates", weekDates);
+        request.setAttribute("workStatusWeekMap", workStatusWeekMap);
+        request.setAttribute("weekDateLabels", weekDateLabels);
         request.getRequestDispatcher("view/work_schedule.jsp").forward(request, response);
     }
 

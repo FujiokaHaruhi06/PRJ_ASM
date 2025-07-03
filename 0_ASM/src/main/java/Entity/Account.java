@@ -33,6 +33,10 @@ public class Account implements Serializable {
     @Column(name = "created_at", nullable = false)
     private Date createdAt = new Date();
 
+    @ManyToOne
+    @JoinColumn(name = "mgrid", referencedColumnName = "aid")
+    private Account manager;
+
     public Account() {}
 
     // Getters and setters
@@ -56,4 +60,7 @@ public class Account implements Serializable {
 
     public Date getCreatedAt() { return createdAt; }
     public void setCreatedAt(Date createdAt) { this.createdAt = createdAt; }
+
+    public Account getManager() { return manager; }
+    public void setManager(Account manager) { this.manager = manager; }
 } 

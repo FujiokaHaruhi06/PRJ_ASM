@@ -37,12 +37,12 @@
                  <h1>${not empty pageTitle ? pageTitle : "Chào mừng"}</h1>
                  <c:if test="${not empty sessionScope.account}">
                     <div class="user-info">
-                        <span>Chào, <strong>${sessionScope.account.lastname}</strong>!</span>
+                        <span>Chào, <strong>${sessionScope.account.user.lastname}</strong>!</span>
                     </div>
                  </c:if>
             </header>
             <main>
-                <h2>Chào mừng trở lại, ${sessionScope.account.lastname}!</h2>
+                <h2>Chào mừng trở lại, ${sessionScope.account.user.lastname}!</h2>
                 <p>Chào mừng bạn đến với Hệ thống Quản lý nghỉ phép. Vui lòng sử dụng thanh điều hướng bên trái để truy cập các chức năng.</p>
             </main>
         </div>

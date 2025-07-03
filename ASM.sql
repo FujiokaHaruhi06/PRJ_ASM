@@ -48,11 +48,12 @@ CREATE TABLE Account (
     active BIT NOT NULL DEFAULT 1,
     gid INT, -- nếu cần liên kết group
     created_at DATETIME NOT NULL DEFAULT GETDATE(),
+    mgrid INT NULL,
     FOREIGN KEY (uid) REFERENCES [User](uid)
 );
 
 -- Bảng User_Role (liên kết account với role)
-CREATE TABLE User_Role (
+CREATE TABLE Account_Role (
     aid INT NOT NULL,
     rid INT NOT NULL,
     PRIMARY KEY (aid, rid),
@@ -94,6 +95,11 @@ CREATE TABLE Leave_Application (
 -- Khóa ngoại cho Group
 ALTER TABLE [Group]
 ADD CONSTRAINT FK_Group_Division FOREIGN KEY (divid) REFERENCES Division(divid);
+ALTER TABLE [Group]
+ADD CONSTRAINT FK_Group_Account FOREIGN KEY (mgrid) REFERENCES Account(aid);
+
+ALTER TABLE [Division]
+ADD CONSTRAINT FK_Division_Account FOREIGN KEY (headid) REFERENCES Account(aid);
 
 -- Trigger cập nhật approval_time
 DROP TRIGGER IF EXISTS TRG_LeaveApplication_Update;

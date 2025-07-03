@@ -11,12 +11,12 @@
 
 <!DOCTYPE html>
 <html lang="vi">
-<head>
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <title>${not empty pageTitle ? pageTitle : "Hệ thống Quản lý nghỉ phép"}</title>
     <link rel="stylesheet" type="text/css" href="${pageContext.request.contextPath}/css/style.css">
-</head>
-<body>
+    </head>
+    <body>
     <div class="page-container">
         <nav class="sidebar">
             <div class="sidebar-header">
@@ -37,15 +37,15 @@
                  <h1>${not empty pageTitle ? pageTitle : "Chào mừng"}</h1>
                  <c:if test="${not empty sessionScope.account}">
                     <div class="user-info">
-                        <span>Chào, <strong>${sessionScope.account.lastname}</strong>!</span>
+                        <span>Chào, <strong>${sessionScope.account.user.lastname}</strong>!</span>
                     </div>
                  </c:if>
             </header>
             <main>
-                <h2>Chào mừng trở lại, ${sessionScope.account.lastname}!</h2>
+                <h2>Chào mừng trở lại, ${sessionScope.account.user.lastname}!</h2>
                 <p>Chào mừng bạn đến với Hệ thống Quản lý nghỉ phép. Vui lòng sử dụng thanh điều hướng bên trái để truy cập các chức năng.</p>
             </main>
         </div>
     </div>
-</body>
+    </body>
 </html>

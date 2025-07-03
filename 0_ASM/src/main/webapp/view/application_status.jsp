@@ -39,7 +39,7 @@
                  <h1>${not empty pageTitle ? pageTitle : "Chào mừng"}</h1>
                  <c:if test="${not empty sessionScope.account}">
                     <div class="user-info">
-                        <span>Chào, <strong>${sessionScope.account.lastname}</strong>!</span>
+                        <span>Chào, <strong>${sessionScope.account.user.lastname}</strong>!</span>
                     </div>
                  </c:if>
             </header>
@@ -67,16 +67,16 @@
                             <c:forEach items="${requestScope.applications}" var="app">
                                 <tr>
                                     <td>${app.lid}</td>
-                                    <td>${app.user.firstname} ${app.user.lastname}</td>
+                                    <td>${app.account.user.firstname} ${app.account.user.lastname}</td>
                                     <td><fmt:formatDate value="${app.startDate}" pattern="dd/MM/yyyy" /></td>
                                     <td><fmt:formatDate value="${app.endDate}" pattern="dd/MM/yyyy" /></td>
                                     <td>${app.reason}</td>
                                     <td>${app.status.sname}</td>
                                     <td>
-                                        <c:if test="${not empty app.approver}">
-                                            ${app.approver.firstname} ${app.approver.lastname}
+                                        <c:if test="${not empty app.approverAccount}">
+                                            ${app.approverAccount.user.firstname} ${app.approverAccount.user.lastname}
                                         </c:if>
-                                        <c:if test="${empty app.approver}">
+                                        <c:if test="${empty app.approverAccount}">
                                             N/A
                                         </c:if>
                                     </td>

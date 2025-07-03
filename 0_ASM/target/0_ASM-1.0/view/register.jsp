@@ -45,20 +45,18 @@
                         <input type="text" id="lastname" name="lastname" required>
                     </div>
                     <div class="form-group">
-                        <label for="groupId">Nhóm:</label>
-                        <select id="groupId" name="groupId" required>
-                            <option value="">-- Chọn nhóm --</option>
-                            <c:forEach items="${groups}" var="g">
-                                <option value="${g.gid}">
-                                    Nhóm ${g.gid}
-                                    <c:if test="${not empty g.manager}">
-                                        (Trưởng nhóm: aid=${g.manager.aid})
-                                    </c:if>
-                                    <c:if test="${not empty g.division}">
-                                        - ${g.division.divname}
-                                    </c:if>
-                                </option>
+                        <label for="divisionId">Phòng (Division):</label>
+                        <select id="divisionId" name="divisionId">
+                            <option value="">-- Không chọn --</option>
+                            <c:forEach items="${divisions}" var="d">
+                                <option value="${d.divid}">${d.divname}</option>
                             </c:forEach>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="groupId">Nhóm:</label>
+                        <select id="groupId" name="groupId">
+                            <option value="">-- Không chọn --</option>
                         </select>
                     </div>
                      <div class="form-group">
@@ -75,5 +73,27 @@
                 <a href="${pageContext.request.contextPath}/login" class="form-link">Quay lại trang Đăng nhập</a>
             </div>
         </main>
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                var divisionSelect = document.getElementById('divisionId');
+                var groupSelect = document.getElementById('groupId');
+                divisionSelect.addEventListener('change', function() {
+                    var divisionId = this.value;
+                    groupSelect.innerHTML = '<option value="">-- Không chọn --</option>';
+                    if (divisionId) {
+                        fetch('getGroupsByDivision?divisionId=' + divisionId)
+                            .then(response => response.json())
+                            .then(data => {
+                                data.forEach(function(g) {
+                                    var opt = document.createElement('option');
+                                    opt.value = g.gid;
+                                    opt.textContent = g.name;
+                                    groupSelect.appendChild(opt);
+                                });
+                            });
+                    }
+                });
+            });
+        </script>
     </body>
 </html>

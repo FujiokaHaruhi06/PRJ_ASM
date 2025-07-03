@@ -17,21 +17,35 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import jakarta.servlet.http.HttpSession;
+import dal.RoleDBContext;
+import Entity.Role;
 
 @WebServlet(name = "CreateLeaveApplicationServlet", urlPatterns = {"/create_leave_application"})
 public class CreateLeaveApplicationServlet extends HttpServlet {
 
     private LeaveApplicationDBContext laDB;
+    private RoleDBContext roleDBContext;
 
     @Override
     public void init() throws ServletException {
         laDB = new LeaveApplicationDBContext();
+        roleDBContext = new RoleDBContext();
     }
     
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+        HttpSession session = request.getSession();
+        if (session.getAttribute("roles") == null) {
+            Account account = (Account) session.getAttribute("account");
+            if (account != null) {
+                List<Role> roles = roleDBContext.getRolesByAccountId(account.getAid());
+                session.setAttribute("roles", roles);
+            }
+        }
         request.getRequestDispatcher("view/create_leave_application.jsp").forward(request, response);
     }
 
@@ -104,7 +118,7 @@ public class CreateLeaveApplicationServlet extends HttpServlet {
             app.setStartDate(startDate);
             app.setEndDate(endDate);
             app.setReason(reason.trim());
-            app.setStatus(new LA_status()); 
+            app.setStatus(laDB.getStatusById(1)); // 1: Pending
 
             laDB.createApplication(app);
             
@@ -113,7 +127,12 @@ public class CreateLeaveApplicationServlet extends HttpServlet {
             
         } catch (Exception e) {
             e.printStackTrace();
-            errors.put("general", "Đã xảy ra lỗi hệ thống khi tạo đơn: " + e.getMessage());
+            String msg = e.getMessage();
+            if (msg != null && msg.contains("không tìm thấy người quản lý hợp lệ")) {
+                errors.put("general", "Không thể gửi đơn: Không tìm thấy người quản lý hợp lệ để duyệt đơn. Vui lòng kiểm tra lại thông tin nhóm/phòng hoặc liên hệ quản trị viên.");
+            } else {
+                errors.put("general", "Đã xảy ra lỗi hệ thống khi tạo đơn: " + e.getMessage());
+            }
             request.setAttribute("errors", errors);
             request.setAttribute("submittedValues", submittedValues);
             request.getRequestDispatcher("view/create_leave_application.jsp").forward(request, response);

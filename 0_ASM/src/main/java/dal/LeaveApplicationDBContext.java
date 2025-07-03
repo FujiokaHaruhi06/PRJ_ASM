@@ -3,6 +3,7 @@ package dal;
 import Entity.Leave_Application;
 import Entity.User;
 import Entity.Account;
+import Entity.LA_status;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.NoResultException;
 import jakarta.persistence.TemporalType;
@@ -51,7 +52,7 @@ public class LeaveApplicationDBContext extends DBContext {
         EntityManager em = createEntityManager();
         try {
             TypedQuery<Leave_Application> query = em.createQuery(
-                "SELECT la FROM Leave_Application la WHERE la.account.user.group.gid = :groupId ORDER BY la.createTime DESC", 
+                "SELECT la FROM Leave_Application la WHERE la.account.group.gid = :groupId ORDER BY la.createTime DESC",
                 Leave_Application.class);
             query.setParameter("groupId", groupId);
             return query.getResultList();
@@ -68,7 +69,7 @@ public class LeaveApplicationDBContext extends DBContext {
         try {
             TypedQuery<Leave_Application> query = em.createQuery(
                 "SELECT la FROM Leave_Application la " +
-                "WHERE la.account.user.group.division.divid = :divisionId " +
+                "WHERE la.account.group.division.divid = :divisionId " +
                 "AND la.account.user.uid IN (SELECT g.mgrid FROM Group g WHERE g.divid = :divisionId)",
                 Leave_Application.class);
             query.setParameter("divisionId", divisionId);
@@ -94,25 +95,26 @@ public class LeaveApplicationDBContext extends DBContext {
             directQuery.setParameter("approverAid", approverAccount.getAid());
             directQuery.setParameter("statusId", PENDING_STATUS_ID);
             reviewables.addAll(directQuery.getResultList());
-            // 2. Nếu là Group Leader, lấy đơn của member trong nhóm mình quản lý
+            // 2. Nếu là Group Leader, lấy đơn của member trong nhóm mình quản lý (kể cả approverAccount IS NULL)
             if (isGroupLeader(approverAccount)) {
                 TypedQuery<Leave_Application> groupQuery = em.createQuery(
-                    "SELECT la FROM Leave_Application la WHERE la.account.group.gid = :gid AND la.status.sid = :statusId AND la.account.aid != :approverAid",
+                    "SELECT la FROM Leave_Application la WHERE la.account.group.gid = :gid AND la.status.sid = :statusId AND (la.account.aid != :approverAid) AND (la.approverAccount IS NULL OR la.approverAccount.aid = :approverAid)",
                     Leave_Application.class);
                 groupQuery.setParameter("gid", approverAccount.getGroup().getGid());
                 groupQuery.setParameter("statusId", PENDING_STATUS_ID);
                 groupQuery.setParameter("approverAid", approverAccount.getAid());
                 reviewables.addAll(groupQuery.getResultList());
             }
-            // 3. Nếu là Division Leader, lấy đơn của các Group Leader mình quản lý
+            // 3. Nếu là Division Leader, lấy đơn của các Group Leader/member mình quản lý (kể cả approverAccount IS NULL)
             if (isDivisionLeader(approverAccount)) {
                  TypedQuery<Leave_Application> divisionQuery = em.createQuery(
                     "SELECT la FROM Leave_Application la " +
                     "WHERE la.account.group.division.divid = :divid AND la.status.sid = :statusId " +
-                    "AND la.account.aid IN (SELECT a.aid FROM Account a WHERE a.group.division.divid = :divid AND a.group.mgrid = a.aid)",
+                    "AND (la.approverAccount IS NULL OR la.approverAccount.aid = :approverAid)",
                     Leave_Application.class);
                 divisionQuery.setParameter("divid", approverAccount.getGroup().getDivision().getDivid());
                 divisionQuery.setParameter("statusId", PENDING_STATUS_ID);
+                divisionQuery.setParameter("approverAid", approverAccount.getAid());
                 reviewables.addAll(divisionQuery.getResultList());
             }
             return new ArrayList<>(reviewables);
@@ -197,16 +199,13 @@ public class LeaveApplicationDBContext extends DBContext {
             }
             if (autoApproved) {
                 app.getStatus().setSid(2); // 2: Approved
-                app.setApproverAccount(app.getAccount()); // Tự duyệt để ghi nhận
+                app.setApproverAccount(null); // Không hiển thị người duyệt nếu tự duyệt
                 app.setApprovalTime(new Date());
             } else {
                 // ... LOGIC TÌM NGƯỜI DUYỆT (ESCALATION) ...
                 Account applicant = em.find(Account.class, app.getAccount().getAid());
                 Account approver = findNextApprover(applicant, em);
-                if (approver == null) {
-                    throw new IllegalStateException("Không tìm thấy người quản lý hợp lệ để duyệt đơn.");
-                }
-                app.setApproverAccount(approver);
+                app.setApproverAccount(approver); // Cho phép null
                 app.getStatus().setSid(1); // 1: Pending
             }
             app.setCreateTime(new Date());
@@ -226,27 +225,19 @@ public class LeaveApplicationDBContext extends DBContext {
      * Tìm người quản lý trực tiếp của một nhân viên.
      */
     private Account getImmediateManager(Account account, EntityManager em) {
-        // Một người có thể vừa là member của group này, vừa là leader của group khác
-        // Quy tắc ở đây là tìm người quản lý của vai trò cao nhất mà họ đang giữ
-        
-        // Nếu là Division Leader -> không có manager
-        if (isDivisionLeader(account)) {
-            return null;
+        // Nếu có mgrid (manager trực tiếp) thì trả về người đó
+        if (account.getManager() != null) {
+            return em.find(Account.class, account.getManager().getAid());
         }
-
-        // Nếu là Group Leader -> manager là Division Leader
-        if (isGroupLeader(account)) {
-             if (account.getGroup().getDivision() != null && account.getGroup().getDivision().getHead() != null) {
-                return em.find(Account.class, account.getGroup().getDivision().getHead().getAid());
+        // Nếu không có mgrid, kiểm tra group và division
+        if (account.getGroup() != null && account.getGroup().getDivision() != null) {
+            Account divisionHead = account.getGroup().getDivision().getHead();
+            if (divisionHead != null) {
+                return em.find(Account.class, divisionHead.getAid());
             }
         }
-        
-        // Nếu là Member -> manager là Group Leader
-        if (account.getGroup() != null && account.getGroup().getManager() != null) {
-            return em.find(Account.class, account.getGroup().getManager().getAid());
-        }
-
-        return null; // Không có manager
+        // Không tìm thấy ai quản lý
+        return null;
     }
 
     public List<Leave_Application> getApplicationsByAccountId(int aid) {
@@ -257,6 +248,15 @@ public class LeaveApplicationDBContext extends DBContext {
                 Leave_Application.class);
             query.setParameter("aid", aid);
             return query.getResultList();
+        } finally {
+            em.close();
+        }
+    }
+
+    public LA_status getStatusById(int sid) {
+        EntityManager em = createEntityManager();
+        try {
+            return em.find(LA_status.class, sid);
         } finally {
             em.close();
         }

@@ -15,6 +15,8 @@ import dal.FeatureDBContext;
 import Entity.Feature;
 import dal.AccountDBContext;
 import Entity.Account;
+import dal.RoleDBContext;
+import Entity.Role;
 
 @WebServlet(name = "LoginServlet", urlPatterns = {"/login"})
 public class LoginServlet extends HttpServlet {
@@ -22,12 +24,14 @@ public class LoginServlet extends HttpServlet {
     private UserDBContext userDBContext;
     private AccountDBContext accountDBContext;
     private FeatureDBContext featureDBContext;
+    private RoleDBContext roleDBContext;
 
     @Override
     public void init() throws ServletException {
         userDBContext = new UserDBContext();
         accountDBContext = new AccountDBContext();
         featureDBContext = new FeatureDBContext();
+        roleDBContext = new RoleDBContext();
     }
 
     @Override
@@ -52,15 +56,14 @@ public class LoginServlet extends HttpServlet {
             List<Feature> features = featureDBContext.getFeaturesByAccountId(account.getAid());
             session.setAttribute("features", features);
             
+            // Lấy và lưu roles của account vào session
+            List<Role> roles = roleDBContext.getRolesByAccountId(account.getAid());
+            session.setAttribute("roles", roles);
+            
             response.sendRedirect("home"); // Chuyển đến trang chủ sau khi đăng nhập thành công
         } else {
             request.setAttribute("errorMessage", "Invalid username or password");
             request.getRequestDispatcher("view/login.jsp").forward(request, response);
         }
-    }
-
-    @Override
-    public String getServletInfo() {
-        return "Short description";
     }
 } 

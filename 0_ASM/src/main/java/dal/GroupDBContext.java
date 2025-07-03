@@ -25,4 +25,16 @@ public class GroupDBContext extends DBContext {
             em.close();
         }
     }
+
+    public List<Group> getByDivisionId(int divisionId) {
+        EntityManager em = createEntityManager();
+        try {
+            String sql = "SELECT g FROM Group g WHERE g.division.divid = :divisionId";
+            TypedQuery<Group> query = em.createQuery(sql, Group.class);
+            query.setParameter("divisionId", divisionId);
+            return query.getResultList();
+        } finally {
+            em.close();
+        }
+    }
 } 

@@ -38,7 +38,7 @@
                  <h1>${not empty pageTitle ? pageTitle : "Chào mừng"}</h1>
                  <c:if test="${not empty sessionScope.account}">
                     <div class="user-info">
-                        <span>Chào, <strong>${sessionScope.account.lastname}</strong>!</span>
+                        <span>Chào, <strong>${sessionScope.account.user.lastname}</strong>!</span>
                     </div>
                  </c:if>
             </header>
@@ -72,7 +72,7 @@
                             <c:forEach items="${requestScope.reviewableApplications}" var="app">
                                 <tr>
                                     <td>${app.lid}</td>
-                                    <td>${app.user.firstname} ${app.user.lastname}</td>
+                                    <td>${app.account.user.firstname} ${app.account.user.lastname}</td>
                                     <td><fmt:formatDate value="${app.startDate}" pattern="dd/MM/yyyy" /></td>
                                     <td><fmt:formatDate value="${app.endDate}" pattern="dd/MM/yyyy" /></td>
                                     <td>${app.reason}</td>
