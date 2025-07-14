@@ -26,7 +26,7 @@
             </div>
             <c:if test="${not empty sessionScope.account}">
                 <c:forEach items="${sessionScope.features}" var="f">
-                    <a href="${pageContext.request.contextPath}${f.link}" class="${pageContext.request.servletPath.endsWith(f.link) ? 'active' : ''}">${f.description}</a>
+                    <a href="${pageContext.request.contextPath}${f.link}" class="${pageContext.request.servletPath.endsWith(f.link) ? 'active' : ''}">${f.fname}</a>
                 </c:forEach>
                 <a href="${pageContext.request.contextPath}/logout" class="logout-link">Đăng xuất</a>
             </c:if>
@@ -54,10 +54,10 @@
                     <table>
                         <thead>
                             <tr>
-                                <th>ID</th>
+                                <!-- <th>ID</th> -->
                                 <th>Người nộp đơn</th>
-                                <th>Ngày bắt đầu</th>
-                                <th>Ngày kết thúc</th>
+                                <th>Nghỉ từ</th>
+                                <th>Nghỉ đến</th>
                                 <th>Lý do</th>
                                 <th>Trạng thái</th>
                                 <th>Người duyệt</th>
@@ -66,19 +66,19 @@
                         <tbody>
                             <c:forEach items="${requestScope.applications}" var="app">
                                 <tr>
-                                    <td>${app.lid}</td>
+                                    <!-- <td>${app.lid}</td> -->
                                     <td>${app.account.user.firstname} ${app.account.user.lastname}</td>
                                     <td><fmt:formatDate value="${app.startDate}" pattern="dd/MM/yyyy" /></td>
                                     <td><fmt:formatDate value="${app.endDate}" pattern="dd/MM/yyyy" /></td>
                                     <td>${app.reason}</td>
                                     <td>${app.status.sname}</td>
                                     <td>
-                                        <c:if test="${not empty app.approverAccount}">
-                                            ${app.approverAccount.user.firstname} ${app.approverAccount.user.lastname}
-                                        </c:if>
-                                        <c:if test="${empty app.approverAccount}">
-                                            N/A
-                                        </c:if>
+                                        <c:choose>
+                                            <c:when test="${not empty app.approverAccount && app.status.sname != 'Pending'}">
+                                                ${app.approverAccount.user.firstname} ${app.approverAccount.user.lastname}
+                                            </c:when>
+                                            <c:otherwise>N/A</c:otherwise>
+                                        </c:choose>
                                     </td>
                                 </tr>
                             </c:forEach>

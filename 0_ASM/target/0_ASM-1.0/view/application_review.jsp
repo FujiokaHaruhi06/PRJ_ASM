@@ -25,7 +25,7 @@
             </div>
             <c:if test="${not empty sessionScope.account}">
                 <c:forEach items="${sessionScope.features}" var="f">
-                    <a href="${pageContext.request.contextPath}${f.link}" class="${pageContext.request.servletPath.endsWith(f.link) ? 'active' : ''}">${f.description}</a>
+                    <a href="${pageContext.request.contextPath}${f.link}" class="${pageContext.request.servletPath.endsWith(f.link) ? 'active' : ''}">${f.fname}</a>
                 </c:forEach>
                 <a href="${pageContext.request.contextPath}/logout" class="logout-link">Đăng xuất</a>
             </c:if>
@@ -60,7 +60,7 @@
                     <table>
                         <thead>
                             <tr>
-                                <th>ID</th>
+                                <!-- <th>ID</th> -->
                                 <th>Người nộp đơn</th>
                                 <th>Ngày bắt đầu</th>
                                 <th>Ngày kết thúc</th>
@@ -71,7 +71,7 @@
                         <tbody>
                             <c:forEach items="${requestScope.reviewableApplications}" var="app">
                                 <tr>
-                                    <td>${app.lid}</td>
+                                    <!-- <td>${app.lid}</td> -->
                                     <td>${app.account.user.firstname} ${app.account.user.lastname}</td>
                                     <td><fmt:formatDate value="${app.startDate}" pattern="dd/MM/yyyy" /></td>
                                     <td><fmt:formatDate value="${app.endDate}" pattern="dd/MM/yyyy" /></td>

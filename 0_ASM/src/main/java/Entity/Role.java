@@ -31,8 +31,6 @@ public class Role implements Serializable {
     @Column(name = "rname")
     private String rname;
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "role")
-    private List<User_Role> userRoleList;
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "role")
     private List<Role_Feature> roleFeatureList;
 
     public Role() {
@@ -61,14 +59,6 @@ public class Role implements Serializable {
 
     public void setRname(String rname) {
         this.rname = rname;
-    }
-
-    public List<User_Role> getUserRoleList() {
-        return userRoleList;
-    }
-
-    public void setUserRoleList(List<User_Role> userRoleList) {
-        this.userRoleList = userRoleList;
     }
 
     public List<Role_Feature> getRoleFeatureList() {

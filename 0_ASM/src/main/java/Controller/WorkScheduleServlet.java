@@ -41,7 +41,7 @@ public class WorkScheduleServlet extends HttpServlet {
             throws ServletException, IOException {
         HttpSession session = request.getSession(false);
         Account account = (Account) session.getAttribute("account");
-
+        
         // Ngày hôm nay là ngày đầu tiên, các ngày tiếp theo là hôm nay+1, +2, ...
         LocalDate today = LocalDate.now();
         List<LocalDate> weekDates = new ArrayList<>();
@@ -52,7 +52,32 @@ public class WorkScheduleServlet extends HttpServlet {
         // Lấy danh sách account: bản thân + cấp dưới
         List<Account> accounts = new ArrayList<>();
         accounts.add(account);
-        Set<Account> subordinates = accountDBContext.getSubordinates(account);
+        Set<Account> subordinates = new java.util.HashSet<>();
+        // Nếu là head của division nào đó, lấy tất cả account thuộc các group trong division đó
+        dal.DivisionDBContext divisionDB = new dal.DivisionDBContext();
+        List<Entity.Division> divisions = divisionDB.getAll();
+        boolean isDivisionHead = false;
+        for (Entity.Division div : divisions) {
+            if (div.getHead() != null && div.getHead().getAid() == account.getAid()) {
+                isDivisionHead = true;
+                // Lấy tất cả group thuộc division này
+                dal.GroupDBContext groupDB = new dal.GroupDBContext();
+                List<Entity.Group> groups = groupDB.getByDivisionId(div.getDivid());
+                for (Entity.Group g : groups) {
+                    dal.AccountDBContext accDB = new dal.AccountDBContext();
+                    Set<Account> groupMembers = new java.util.HashSet<>(accDB.getSubordinates(g.getManager()));
+                    // Thêm cả trưởng nhóm
+                    if (g.getManager() != null) groupMembers.add(g.getManager());
+                    subordinates.addAll(groupMembers);
+                }
+            }
+        }
+        if (!isDivisionHead) {
+            // Nếu không phải trưởng phòng, lấy cấp dưới như cũ
+            subordinates = accountDBContext.getSubordinates(account);
+        }
+        // Loại bỏ bản thân nếu có trong subordinates
+        subordinates.remove(account);
         accounts.addAll(subordinates);
 
         // Map<Account, Map<LocalDate, Boolean>>
@@ -74,7 +99,7 @@ public class WorkScheduleServlet extends HttpServlet {
             if (d.equals(today)) label += " (hôm nay)";
             weekDateLabels.add(label);
         }
-
+        
         request.setAttribute("weekDates", weekDates);
         request.setAttribute("workStatusWeekMap", workStatusWeekMap);
         request.setAttribute("weekDateLabels", weekDateLabels);

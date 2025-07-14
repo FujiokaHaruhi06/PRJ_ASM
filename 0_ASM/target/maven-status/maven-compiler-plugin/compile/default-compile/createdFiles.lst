@@ -12,6 +12,7 @@ Entity\Role_FeaturePK.class
 dal\GroupDBContext.class
 Entity\Group.class
 Entity\Role.class
+Controller\LeaveApplicationAutoRejectListener.class
 dal\FeatureDBContext.class
 Controller\ApplicationStatusServlet.class
 Entity\Account.class
@@ -27,4 +28,5 @@ Controller\LogoutServlet.class
 Controller\WorkScheduleServlet.class
 Entity\Leave_Application.class
 Entity\Feature.class
+Controller\LeaveApplicationAutoRejectListener$AutoRejectTask.class
 Entity\Division.class

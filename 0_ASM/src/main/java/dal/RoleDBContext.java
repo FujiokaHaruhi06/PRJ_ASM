@@ -16,7 +16,7 @@ public class RoleDBContext extends DBContext {
     public List<Role> getRolesByAccountId(int aid) {
         EntityManager em = createEntityManager();
         try {
-            String jpql = "SELECT ur.role FROM User_Role ur WHERE ur.account.aid = :aid";
+            String jpql = "SELECT ar.role FROM Account_Role ar WHERE ar.account.aid = :aid";
             TypedQuery<Role> query = em.createQuery(jpql, Role.class);
             query.setParameter("aid", aid);
             return query.getResultList();

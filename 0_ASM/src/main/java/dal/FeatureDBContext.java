@@ -16,7 +16,7 @@ public class FeatureDBContext extends DBContext {
     public List<Feature> getFeaturesByAccountId(int aid) {
         EntityManager em = createEntityManager();
         try {
-            String jpql = "SELECT DISTINCT rf.feature FROM User_Role ur JOIN ur.role r JOIN r.roleFeatureList rf WHERE ur.account.aid = :aid";
+            String jpql = "SELECT DISTINCT rf.feature FROM Account_Role ar JOIN ar.role r JOIN r.roleFeatureList rf WHERE ar.account.aid = :aid AND rf.feature.isActive = true AND rf.feature.link <> 'register'";
             TypedQuery<Feature> query = em.createQuery(jpql, Feature.class);
             query.setParameter("aid", aid);
             return query.getResultList();
@@ -28,6 +28,17 @@ public class FeatureDBContext extends DBContext {
             if (em != null) {
                 em.close();
             }
+        }
+    }
+
+    public List<Feature> getAll() {
+        EntityManager em = createEntityManager();
+        try {
+            String jpql = "SELECT f FROM Feature f";
+            TypedQuery<Feature> query = em.createQuery(jpql, Feature.class);
+            return query.getResultList();
+        } finally {
+            em.close();
         }
     }
 } 

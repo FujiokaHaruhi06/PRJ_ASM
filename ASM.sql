@@ -8,7 +8,8 @@ CREATE TABLE [User] (
     uid INT PRIMARY KEY IDENTITY,
     email NVARCHAR(255),
     firstname NVARCHAR(100),
-    lastname NVARCHAR(100)
+    lastname NVARCHAR(100),
+    phone NVARCHAR(10)
 );
 
 -- Bảng Group
@@ -36,7 +37,8 @@ CREATE TABLE Feature (
     fid INT PRIMARY KEY IDENTITY(1,1),
     fname NVARCHAR(50) NOT NULL,
     link VARCHAR(50) NOT NULL,
-    description NVARCHAR(255) NULL
+    description NVARCHAR(255) NULL,
+    active BIT NULL DEFAULT 1
 );
 
 -- Bảng Account (tài khoản đăng nhập, liên kết với User, Group)
@@ -48,7 +50,6 @@ CREATE TABLE Account (
     active BIT NOT NULL DEFAULT 1,
     gid INT, -- nếu cần liên kết group
     created_at DATETIME NOT NULL DEFAULT GETDATE(),
-    mgrid INT NULL,
     FOREIGN KEY (uid) REFERENCES [User](uid)
 );
 

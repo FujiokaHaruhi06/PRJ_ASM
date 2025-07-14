@@ -19,7 +19,7 @@
     <body>
         <main>
             <div class="form-container">
-                <h2>Đăng nhập hệ thống</h2>
+                <h2 class="form-title">Đăng nhập hệ thống</h2>
                 
                 <c:if test="${not empty requestScope.errorMessage}">
                     <p class="error-message">${requestScope.errorMessage}</p>
@@ -37,8 +37,11 @@
                     <button type="submit" class="btn">Đăng nhập</button>
                 </form>
                 
-                <%-- Giả sử chỉ Division Leader có quyền tạo tài khoản --%>
-                <a href="${pageContext.request.contextPath}/register" class="form-link">Tạo tài khoản mới (Dành cho Admin)</a>
+                <!--
+                <div class="register-link">
+                    <a href="register">Đăng ký tài khoản mới</a>
+                </div>
+                -->
             </div>
         </main>
     </body>

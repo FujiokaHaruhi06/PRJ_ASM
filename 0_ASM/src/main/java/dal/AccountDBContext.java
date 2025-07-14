@@ -2,8 +2,6 @@ package dal;
 
 import Entity.Account;
 import Entity.Role;
-import Entity.User_Role;
-import Entity.User_RolePK;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityTransaction;
 import jakarta.persistence.NoResultException;
@@ -41,10 +39,26 @@ public class AccountDBContext extends DBContext {
      * @param account The manager Account object.
      * @return A Set of subordinate Account objects.
      */
-    public Set<Account> getSubordinates(Account account) {
-        // Placeholder: cần xác định lại logic phân cấp theo Account
-        // Có thể cần join sang User nếu cần lấy thông tin cá nhân
-        return new HashSet<>();
+    public Set<Account> getSubordinates(Account manager) {
+        EntityManager em = createEntityManager();
+        try {
+            // Tìm group mà manager là trưởng nhóm
+            TypedQuery<Entity.Group> groupQuery = em.createQuery(
+                "SELECT g FROM Group g WHERE g.manager.aid = :managerId", Entity.Group.class);
+            groupQuery.setParameter("managerId", manager.getAid());
+            List<Entity.Group> groups = groupQuery.getResultList();
+            Set<Account> subordinates = new HashSet<>();
+            for (Entity.Group group : groups) {
+                TypedQuery<Account> accQuery = em.createQuery(
+                    "SELECT a FROM Account a WHERE a.group.gid = :gid AND a.aid <> :managerId", Account.class);
+                accQuery.setParameter("gid", group.getGid());
+                accQuery.setParameter("managerId", manager.getAid());
+                subordinates.addAll(accQuery.getResultList());
+            }
+            return subordinates;
+        } finally {
+            em.close();
+        }
     }
 
     public void insert(Account account) {
@@ -69,14 +83,12 @@ public class AccountDBContext extends DBContext {
         EntityTransaction transaction = em.getTransaction();
         try {
             transaction.begin();
-            User_RolePK pk = new User_RolePK();
-            pk.setAid(account.getAid());
-            pk.setRid(role.getRid());
-            User_Role userRole = new User_Role();
-            userRole.setUserRolePK(pk);
-            userRole.setAccount(em.merge(account));
-            userRole.setRole(em.merge(role));
-            em.persist(userRole);
+            // Tạo mới Account_Role
+            EntityManager em2 = em;
+            em2.createNativeQuery("INSERT INTO Account_Role (aid, rid) VALUES (?, ?)")
+                .setParameter(1, account.getAid())
+                .setParameter(2, role.getRid())
+                .executeUpdate();
             transaction.commit();
         } catch (Exception e) {
             if (transaction.isActive()) {

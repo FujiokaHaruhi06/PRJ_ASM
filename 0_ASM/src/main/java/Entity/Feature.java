@@ -35,6 +35,8 @@ public class Feature implements Serializable {
     private String link;
     @Column(name = "description")
     private String description;
+    @Column(name = "isActive")
+    private boolean isActive = true;
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "feature")
     private List<Role_Feature> roleFeatureList;
 
@@ -81,6 +83,14 @@ public class Feature implements Serializable {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public boolean isIsActive() {
+        return isActive;
+    }
+
+    public void setIsActive(boolean isActive) {
+        this.isActive = isActive;
     }
 
     public List<Role_Feature> getRoleFeatureList() {

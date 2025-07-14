@@ -131,7 +131,7 @@ public class CreateLeaveApplicationServlet extends HttpServlet {
             if (msg != null && msg.contains("không tìm thấy người quản lý hợp lệ")) {
                 errors.put("general", "Không thể gửi đơn: Không tìm thấy người quản lý hợp lệ để duyệt đơn. Vui lòng kiểm tra lại thông tin nhóm/phòng hoặc liên hệ quản trị viên.");
             } else {
-                errors.put("general", "Đã xảy ra lỗi hệ thống khi tạo đơn: " + e.getMessage());
+            errors.put("general", "Đã xảy ra lỗi hệ thống khi tạo đơn: " + e.getMessage());
             }
             request.setAttribute("errors", errors);
             request.setAttribute("submittedValues", submittedValues);

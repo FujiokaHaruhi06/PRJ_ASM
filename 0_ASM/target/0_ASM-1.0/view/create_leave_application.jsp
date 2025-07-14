@@ -24,7 +24,7 @@
             </div>
             <c:if test="${not empty sessionScope.account}">
                 <c:forEach items="${sessionScope.features}" var="f">
-                    <a href="${pageContext.request.contextPath}${f.link}" class="${pageContext.request.servletPath.endsWith(f.link) ? 'active' : ''}">${f.description}</a>
+                    <a href="${pageContext.request.contextPath}${f.link}" class="${pageContext.request.servletPath.endsWith(f.link) ? 'active' : ''}">${f.fname}</a>
                 </c:forEach>
                 <a href="${pageContext.request.contextPath}/logout" class="logout-link">Đăng xuất</a>
             </c:if>

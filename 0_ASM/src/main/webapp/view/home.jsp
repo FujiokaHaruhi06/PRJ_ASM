@@ -24,7 +24,7 @@
             </div>
             <c:if test="${not empty sessionScope.account}">
                 <c:forEach items="${sessionScope.features}" var="f">
-                    <a href="${pageContext.request.contextPath}${f.link}" class="${pageContext.request.servletPath.endsWith(f.link) ? 'active' : ''}">${f.description}</a>
+                    <a href="${pageContext.request.contextPath}${f.link}" class="${pageContext.request.servletPath.endsWith(f.link) ? 'active' : ''}">${f.fname}</a>
                 </c:forEach>
                 <a href="${pageContext.request.contextPath}/logout" class="logout-link">Đăng xuất</a>
             </c:if>
@@ -43,7 +43,6 @@
             </header>
             <main>
                 <h2>Chào mừng trở lại, ${sessionScope.account.user.lastname}!</h2>
-                <p>Chào mừng bạn đến với Hệ thống Quản lý nghỉ phép. Vui lòng sử dụng thanh điều hướng bên trái để truy cập các chức năng.</p>
             </main>
         </div>
     </div>

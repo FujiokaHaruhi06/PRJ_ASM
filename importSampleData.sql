@@ -1,4 +1,6 @@
-﻿USE [ASM]
+﻿CREATE DATABASE ASM
+
+USE [ASM]
 GO
 
 INSERT INTO [dbo].[Division]
@@ -6,8 +8,8 @@ INSERT INTO [dbo].[Division]
            ,[headid])
      VALUES
            ('IT', null),
-		   ('QA', null),
-		   ('Sale', null)
+           ('QA', null),
+           ('Sale', null)
 GO
 
 INSERT INTO [dbo].[Group]
@@ -15,24 +17,26 @@ INSERT INTO [dbo].[Group]
            ,[divid])
      VALUES
            (null,null),
-		   (null,null),
-		   (null,null)
+           (null,null),
+           (null,null)
 GO
 
-INSERT INTO [dbo].[Feature] ([fname], [link], [description]) VALUES
-    (N'Trang chủ', '/home', N'Hiển thị trang chủ'),
-    (N'Tạo đơn', '/create_leave_application', N'Tạo đơn xin nghỉ'),
-    (N'Tình trạng', '/application_status', N'Xem tình trạng đơn'),
-    (N'Xét duyệt', '/application_review', N'Xét duyệt đơn xin nghỉ'),
-    (N'Lịch làm việc', '/work_schedule', N'Xem lịch làm việc');
+--Chuyển isActive của register thành 1 để tạo tài khoản mới nếu cần
+INSERT INTO [dbo].[Feature] ([fname], [link], [description], [isActive]) VALUES
+    (N'Trang chủ', '/home', N'Hiển thị trang chủ', 1),
+    (N'Tạo đơn', '/create_leave_application', N'Tạo đơn xin nghỉ', 1),
+    (N'Tình trạng', '/application_status', N'Xem tình trạng đơn', 1),
+    (N'Xét duyệt', '/application_review', N'Xét duyệt đơn xin nghỉ', 1),
+    (N'Lịch làm việc', '/work_schedule', N'Xem lịch làm việc', 1),
+    (N'Tạo tài khoản', '/register', N'Tạo tài khoản', 0)
 GO
 
 INSERT INTO [dbo].[Role]
            ([rname])
      VALUES
            ('Division Leader'),
-		   ('Group Leader'),
-		   ('Member')
+           ('Group Leader'),
+           ('Member')
 GO
 
 INSERT INTO [dbo].[LA_status] ([sname]) VALUES

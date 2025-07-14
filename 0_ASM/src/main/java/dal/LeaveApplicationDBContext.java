@@ -95,7 +95,22 @@ public class LeaveApplicationDBContext extends DBContext {
             directQuery.setParameter("approverAid", approverAccount.getAid());
             directQuery.setParameter("statusId", PENDING_STATUS_ID);
             reviewables.addAll(directQuery.getResultList());
-            // 2. Nếu là Group Leader, lấy đơn của member trong nhóm mình quản lý (kể cả approverAccount IS NULL)
+
+            // 2. Nếu là Division Head (dù không thuộc group), lấy tất cả đơn thuộc division mình quản lý
+            List<Integer> headDivIds = em.createQuery(
+                "SELECT d.divid FROM Division d WHERE d.head.aid = :aid", Integer.class)
+                .setParameter("aid", approverAccount.getAid())
+                .getResultList();
+            if (!headDivIds.isEmpty()) {
+                TypedQuery<Leave_Application> divQuery = em.createQuery(
+                    "SELECT la FROM Leave_Application la WHERE la.account.group.division.divid IN :divids AND la.status.sid = :statusId",
+                    Leave_Application.class);
+                divQuery.setParameter("divids", headDivIds);
+                divQuery.setParameter("statusId", PENDING_STATUS_ID);
+                reviewables.addAll(divQuery.getResultList());
+            }
+
+            // 3. Nếu là Group Leader, lấy đơn của member trong nhóm mình quản lý (kể cả approverAccount IS NULL)
             if (isGroupLeader(approverAccount)) {
                 TypedQuery<Leave_Application> groupQuery = em.createQuery(
                     "SELECT la FROM Leave_Application la WHERE la.account.group.gid = :gid AND la.status.sid = :statusId AND (la.account.aid != :approverAid) AND (la.approverAccount IS NULL OR la.approverAccount.aid = :approverAid)",
@@ -104,18 +119,6 @@ public class LeaveApplicationDBContext extends DBContext {
                 groupQuery.setParameter("statusId", PENDING_STATUS_ID);
                 groupQuery.setParameter("approverAid", approverAccount.getAid());
                 reviewables.addAll(groupQuery.getResultList());
-            }
-            // 3. Nếu là Division Leader, lấy đơn của các Group Leader/member mình quản lý (kể cả approverAccount IS NULL)
-            if (isDivisionLeader(approverAccount)) {
-                 TypedQuery<Leave_Application> divisionQuery = em.createQuery(
-                    "SELECT la FROM Leave_Application la " +
-                    "WHERE la.account.group.division.divid = :divid AND la.status.sid = :statusId " +
-                    "AND (la.approverAccount IS NULL OR la.approverAccount.aid = :approverAid)",
-                    Leave_Application.class);
-                divisionQuery.setParameter("divid", approverAccount.getGroup().getDivision().getDivid());
-                divisionQuery.setParameter("statusId", PENDING_STATUS_ID);
-                divisionQuery.setParameter("approverAid", approverAccount.getAid());
-                reviewables.addAll(divisionQuery.getResultList());
             }
             return new ArrayList<>(reviewables);
         } finally {
@@ -141,9 +144,14 @@ public class LeaveApplicationDBContext extends DBContext {
             em.getTransaction().begin();
             Leave_Application app = em.find(Leave_Application.class, applicationId);
             if (app != null) {
-                app.getStatus().setSid(newStatusId);
-                app.setApproverAccount(em.find(Entity.Account.class, approverAid));
-                app.setApprovalTime(new Date());
+                LA_status status = em.find(LA_status.class, newStatusId);
+                app.setStatus(status);
+                if (approverAid == 0) {
+                    app.setApproverAccount(null);
+                } else {
+                    app.setApproverAccount(em.find(Entity.Account.class, approverAid));
+                }
+                app.setApprovalTime(new java.util.Date());
                 em.merge(app);
             }
             em.getTransaction().commit();
@@ -162,17 +170,21 @@ public class LeaveApplicationDBContext extends DBContext {
      */
     private Account findNextApprover(Account applicant, EntityManager em) {
         Account currentManager = getImmediateManager(applicant, em);
+        java.util.Set<Integer> visited = new java.util.HashSet<>();
         while (currentManager != null) {
+            if (visited.contains(currentManager.getAid())) break; // tránh vòng lặp vô hạn
+            visited.add(currentManager.getAid());
             // Người duyệt không thể là chính người nộp đơn
             if (currentManager.equals(applicant)) {
                 currentManager = getImmediateManager(currentManager, em);
                 continue;
             }
+            // Kiểm tra null cho currentManager
+            if (currentManager.getAid() == 0) break;
             // Kiểm tra xem người quản lý có đang nghỉ không
-            if (!isAccountOnLeaveOnDate(currentManager.getAid(), new Date())) {
+            if (!isAccountOnLeaveOnDate(currentManager.getAid(), new java.util.Date())) {
                 return currentManager; // Tìm thấy người duyệt hợp lệ
             }
-            // Nếu người quản lý hiện tại nghỉ, tìm quản lý của họ
             currentManager = getImmediateManager(currentManager, em);
         }
         // Fallback: Nếu không tìm thấy ai trong chuỗi phân cấp
@@ -225,11 +237,11 @@ public class LeaveApplicationDBContext extends DBContext {
      * Tìm người quản lý trực tiếp của một nhân viên.
      */
     private Account getImmediateManager(Account account, EntityManager em) {
-        // Nếu có mgrid (manager trực tiếp) thì trả về người đó
-        if (account.getManager() != null) {
-            return em.find(Account.class, account.getManager().getAid());
+        // Nếu có group và group có manager thì trả về manager
+        if (account.getGroup() != null && account.getGroup().getManager() != null) {
+            return em.find(Account.class, account.getGroup().getManager().getAid());
         }
-        // Nếu không có mgrid, kiểm tra group và division
+        // Nếu không có manager, kiểm tra division
         if (account.getGroup() != null && account.getGroup().getDivision() != null) {
             Account divisionHead = account.getGroup().getDivision().getHead();
             if (divisionHead != null) {
@@ -257,6 +269,22 @@ public class LeaveApplicationDBContext extends DBContext {
         EntityManager em = createEntityManager();
         try {
             return em.find(LA_status.class, sid);
+        } finally {
+            em.close();
+        }
+    }
+
+    /**
+     * Lấy tất cả đơn theo trạng thái
+     */
+    public List<Leave_Application> getApplicationsByStatus(int statusId) {
+        EntityManager em = createEntityManager();
+        try {
+            TypedQuery<Leave_Application> query = em.createQuery(
+                "SELECT la FROM Leave_Application la WHERE la.status.sid = :statusId",
+                Leave_Application.class);
+            query.setParameter("statusId", statusId);
+            return query.getResultList();
         } finally {
             em.close();
         }

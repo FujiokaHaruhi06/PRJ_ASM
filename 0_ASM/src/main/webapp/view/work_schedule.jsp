@@ -16,6 +16,10 @@
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <title>${not empty pageTitle ? pageTitle : "Hệ thống Quản lý nghỉ phép"}</title>
     <link rel="stylesheet" type="text/css" href="${pageContext.request.contextPath}/css/style.css">
+    <style>
+        .on-leave { background-color: #e74c3c; color: white; font-weight: bold; }
+        .working { background-color: #2ecc71; color: white; font-weight: bold; }
+    </style>
     </head>
     <body>
     <div class="page-container">
@@ -25,7 +29,7 @@
             </div>
             <c:if test="${not empty sessionScope.account}">
                 <c:forEach items="${sessionScope.features}" var="f">
-                    <a href="${pageContext.request.contextPath}${f.link}" class="${pageContext.request.servletPath.endsWith(f.link) ? 'active' : ''}">${f.description}</a>
+                    <a href="${pageContext.request.contextPath}${f.link}" class="${pageContext.request.servletPath.endsWith(f.link) ? 'active' : ''}">${f.fname}</a>
                 </c:forEach>
                 <a href="${pageContext.request.contextPath}/logout" class="logout-link">Đăng xuất</a>
             </c:if>
@@ -58,16 +62,24 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <c:forEach items="${workStatusWeekMap}" var="entry">
+                            <c:forEach var="acc" items="${workStatusWeekMap.keySet()}">
                                 <tr>
                                     <td>
-                                        ${entry.key.user.firstname} ${entry.key.user.lastname}
-                                        <c:if test="${entry.key.aid == sessionScope.account.aid}"><strong>(Bạn)</strong></c:if>
+                                        ${acc.user.firstname} ${acc.user.lastname}
+                                        <c:if test="${not empty acc.group and acc.group.manager != null and acc.aid == acc.group.manager.aid and acc.aid != sessionScope.account.aid}">
+                                            <span style="color: #007bff; font-weight: bold;">(Trưởng nhóm)</span>
+                                        </c:if>
+                                        <c:if test="${acc.aid == sessionScope.account.aid}">
+                                            (Bạn)
+                                        </c:if>
                                     </td>
-                                    <c:forEach items="${weekDates}" var="date">
-                                        <c:set var="isOnLeave" value="${entry.value[date]}" />
-                                        <td style="background-color: ${isOnLeave ? '#e74c3c' : '#2ecc71'}; color: white; font-weight: bold;">
-                                            ${isOnLeave ? 'Nghỉ phép' : 'Làm việc'}
+                                    <c:forEach var="date" items="${weekDates}">
+                                        <c:set var="isOnLeave" value="${workStatusWeekMap[acc][date]}" />
+                                        <td class="${isOnLeave ? 'on-leave' : 'working'}">
+                                            <c:choose>
+                                                <c:when test="${isOnLeave}">Nghỉ phép</c:when>
+                                                <c:otherwise>Làm việc</c:otherwise>
+                                            </c:choose>
                                         </td>
                                     </c:forEach>
                                 </tr>

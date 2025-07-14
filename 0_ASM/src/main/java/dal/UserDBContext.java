@@ -2,8 +2,6 @@ package dal;
 
 import Entity.User;
 import Entity.Role;
-import Entity.User_Role;
-import Entity.User_RolePK;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityTransaction;
 import jakarta.persistence.NoResultException;
