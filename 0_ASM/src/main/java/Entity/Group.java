@@ -5,14 +5,12 @@
 package Entity;
 
 import java.io.Serializable;
-import java.util.List;
 import jakarta.persistence.Basic;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 
 /**
@@ -64,31 +62,6 @@ public class Group implements Serializable {
 
     public void setDivision(Division division) {
         this.division = division;
-    }
-
-    @Override
-    public int hashCode() {
-        int hash = 0;
-        hash += (gid != null ? gid.hashCode() : 0);
-        return hash;
-    }
-
-    @Override
-    public boolean equals(Object object) {
-        // TODO: Warning - this method won't work in the case the id fields are not set
-        if (!(object instanceof Group)) {
-            return false;
-        }
-        Group other = (Group) object;
-        if ((this.gid == null && other.gid != null) || (this.gid != null && !this.gid.equals(other.gid))) {
-            return false;
-        }
-        return true;
-    }
-
-    @Override
-    public String toString() {
-        return "Entity.Group[ gid=" + gid + " ]";
     }
     
 }

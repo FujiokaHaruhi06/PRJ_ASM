@@ -1,14 +1,11 @@
 package dal;
 
 import Entity.User;
-import Entity.Role;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityTransaction;
 import jakarta.persistence.NoResultException;
 import jakarta.persistence.TypedQuery;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+
 
 public class UserDBContext extends DBContext {
 

@@ -37,7 +37,7 @@ public class ApplicationStatusServlet extends HttpServlet {
         Set<Leave_Application> applications = new HashSet<>();
         // 1. Luôn lấy các đơn của chính mình
         applications.addAll(laDB.getApplicationsByAccountId(account.getAid()));
-
+        
         // 2. Nếu là head của division nào đó, lấy tất cả đơn của các account thuộc các group trong division đó
         dal.DivisionDBContext divisionDB = new dal.DivisionDBContext();
         List<Entity.Division> divisions = divisionDB.getAll();
@@ -63,12 +63,12 @@ public class ApplicationStatusServlet extends HttpServlet {
             dal.RoleDBContext roleDB = new dal.RoleDBContext();
             List<Entity.Role> roles = roleDB.getRolesByAccountId(account.getAid());
             for (Entity.Role role : roles) {
-                if (account.getGroup() != null) {
-                    if ("Group Leader".equalsIgnoreCase(role.getRname())) {
-                        applications.addAll(laDB.getApplicationsByGroupId(account.getGroup().getGid()));
-                    }
-                    if ("Division Leader".equalsIgnoreCase(role.getRname()) && account.getGroup().getDivision() != null) {
-                        applications.addAll(laDB.getApplicationsByDivisionId(account.getGroup().getDivision().getDivid()));
+            if (account.getGroup() != null) {
+                if ("Group Leader".equalsIgnoreCase(role.getRname())) {
+                    applications.addAll(laDB.getApplicationsByGroupId(account.getGroup().getGid()));
+                }
+                if ("Division Leader".equalsIgnoreCase(role.getRname()) && account.getGroup().getDivision() != null) {
+                    applications.addAll(laDB.getApplicationsByDivisionId(account.getGroup().getDivision().getDivid()));
                     }
                 }
             }

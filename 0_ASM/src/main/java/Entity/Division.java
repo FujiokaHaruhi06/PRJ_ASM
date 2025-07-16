@@ -5,12 +5,10 @@
 package Entity;
 
 import java.io.Serializable;
-import java.util.List;
 import jakarta.persistence.Basic;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
@@ -69,31 +67,6 @@ public class Division implements Serializable {
 
     public void setHead(Account head) {
         this.head = head;
-    }
-
-    @Override
-    public int hashCode() {
-        int hash = 0;
-        hash += (divid != null ? divid.hashCode() : 0);
-        return hash;
-    }
-
-    @Override
-    public boolean equals(Object object) {
-        // TODO: Warning - this method won't work in the case the id fields are not set
-        if (!(object instanceof Division)) {
-            return false;
-        }
-        Division other = (Division) object;
-        if ((this.divid == null && other.divid != null) || (this.divid != null && !this.divid.equals(other.divid))) {
-            return false;
-        }
-        return true;
-    }
-
-    @Override
-    public String toString() {
-        return "Entity.Division[ divid=" + divid + " ]";
     }
     
 }

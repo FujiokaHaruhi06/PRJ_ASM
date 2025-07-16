@@ -10,13 +10,20 @@ public class FeatureDBContext extends DBContext {
 
     /**
      * Gets a list of all features a user has access to based on their roles.
+     *
      * @param userId The ID of the user.
-     * @return A list of Feature objects. Returns an empty list if none are found.
+     * @return A list of Feature objects. Returns an empty list if none are
+     * found.
      */
     public List<Feature> getFeaturesByAccountId(int aid) {
         EntityManager em = createEntityManager();
         try {
-            String jpql = "SELECT DISTINCT rf.feature FROM Account_Role ar JOIN ar.role r JOIN r.roleFeatureList rf WHERE ar.account.aid = :aid AND rf.feature.isActive = true AND rf.feature.link <> 'register'";
+            String jpql = "SELECT DISTINCT rf.feature FROM Account_Role ar "
+                    + "JOIN ar.role r "
+                    + "JOIN r.roleFeatureList rf "
+                    + "WHERE ar.account.aid = :aid "
+                    + "AND rf.feature.isActive = true "
+                    + "AND rf.feature.link <> 'register'";
             TypedQuery<Feature> query = em.createQuery(jpql, Feature.class);
             query.setParameter("aid", aid);
             return query.getResultList();
@@ -41,4 +48,4 @@ public class FeatureDBContext extends DBContext {
             em.close();
         }
     }
-} 
+}

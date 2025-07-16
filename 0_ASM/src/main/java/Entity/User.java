@@ -107,30 +107,5 @@ public class User implements Serializable {
     public void setAccounts(List<Account> accounts) {
         this.accounts = accounts;
     }
-
-    @Override
-    public int hashCode() {
-        int hash = 0;
-        hash += (uid != null ? uid.hashCode() : 0);
-        return hash;
-    }
-
-    @Override
-    public boolean equals(Object object) {
-        // TODO: Warning - this method won't work in the case the id fields are not set
-        if (!(object instanceof User)) {
-            return false;
-        }
-        User other = (User) object;
-        if ((this.uid == null && other.uid != null) || (this.uid != null && !this.uid.equals(other.uid))) {
-            return false;
-        }
-        return true;
-    }
-
-    @Override
-    public String toString() {
-        return "Entity.User[ uid=" + uid + " ]";
-    }
     
 }

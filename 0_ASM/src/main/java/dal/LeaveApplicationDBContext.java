@@ -1,7 +1,6 @@
 package dal;
 
 import Entity.Leave_Application;
-import Entity.User;
 import Entity.Account;
 import Entity.LA_status;
 import jakarta.persistence.EntityManager;
@@ -149,7 +148,7 @@ public class LeaveApplicationDBContext extends DBContext {
                 if (approverAid == 0) {
                     app.setApproverAccount(null);
                 } else {
-                    app.setApproverAccount(em.find(Entity.Account.class, approverAid));
+                app.setApproverAccount(em.find(Entity.Account.class, approverAid));
                 }
                 app.setApprovalTime(new java.util.Date());
                 em.merge(app);

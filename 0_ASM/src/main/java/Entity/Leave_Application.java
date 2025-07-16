@@ -13,7 +13,6 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.Lob;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.Temporal;
@@ -146,31 +145,6 @@ public class Leave_Application implements Serializable {
 
     public void setApproverAccount(Account approverAccount) {
         this.approverAccount = approverAccount;
-    }
-
-    @Override
-    public int hashCode() {
-        int hash = 0;
-        hash += (lid != null ? lid.hashCode() : 0);
-        return hash;
-    }
-
-    @Override
-    public boolean equals(Object object) {
-        // TODO: Warning - this method won't work in the case the id fields are not set
-        if (!(object instanceof Leave_Application)) {
-            return false;
-        }
-        Leave_Application other = (Leave_Application) object;
-        if ((this.lid == null && other.lid != null) || (this.lid != null && !this.lid.equals(other.lid))) {
-            return false;
-        }
-        return true;
-    }
-
-    @Override
-    public String toString() {
-        return "Entity.Leave_Application[ lid=" + lid + " ]";
     }
     
 }

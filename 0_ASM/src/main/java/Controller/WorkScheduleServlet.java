@@ -1,6 +1,5 @@
 package Controller;
 
-import Entity.User;
 import Entity.Account;
 import dal.LeaveApplicationDBContext;
 import dal.UserDBContext;

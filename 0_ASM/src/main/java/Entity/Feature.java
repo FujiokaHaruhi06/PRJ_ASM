@@ -100,30 +100,5 @@ public class Feature implements Serializable {
     public void setRoleFeatureList(List<Role_Feature> roleFeatureList) {
         this.roleFeatureList = roleFeatureList;
     }
-
-    @Override
-    public int hashCode() {
-        int hash = 0;
-        hash += (fid != null ? fid.hashCode() : 0);
-        return hash;
-    }
-
-    @Override
-    public boolean equals(Object object) {
-        // TODO: Warning - this method won't work in the case the id fields are not set
-        if (!(object instanceof Feature)) {
-            return false;
-        }
-        Feature other = (Feature) object;
-        if ((this.fid == null && other.fid != null) || (this.fid != null && !this.fid.equals(other.fid))) {
-            return false;
-        }
-        return true;
-    }
-
-    @Override
-    public String toString() {
-        return "Entity.Feature[ fid=" + fid + " ]";
-    }
     
 }

@@ -3,7 +3,6 @@ package dal;
 import Entity.Role;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.TypedQuery;
-import java.util.Collections;
 import java.util.List;
 
 public class RoleDBContext extends DBContext {

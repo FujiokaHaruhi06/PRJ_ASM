@@ -68,30 +68,5 @@ public class LA_status implements Serializable {
     public void setLeaveApplicationList(List<Leave_Application> leaveApplicationList) {
         this.leaveApplicationList = leaveApplicationList;
     }
-
-    @Override
-    public int hashCode() {
-        int hash = 0;
-        hash += (sid != null ? sid.hashCode() : 0);
-        return hash;
-    }
-
-    @Override
-    public boolean equals(Object object) {
-        // TODO: Warning - this method won't work in the case the id fields are not set
-        if (!(object instanceof LA_status)) {
-            return false;
-        }
-        LA_status other = (LA_status) object;
-        if ((this.sid == null && other.sid != null) || (this.sid != null && !this.sid.equals(other.sid))) {
-            return false;
-        }
-        return true;
-    }
-
-    @Override
-    public String toString() {
-        return "Entity.LA_status[ sid=" + sid + " ]";
-    }
     
 }
